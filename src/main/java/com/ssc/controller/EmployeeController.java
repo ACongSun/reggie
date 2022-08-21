@@ -1,18 +1,19 @@
 package com.ssc.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ssc.common.R;
 import com.ssc.entity.Employee;
 import com.ssc.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 /**
  * @ClassName EmployeeController
@@ -34,11 +35,39 @@ public class EmployeeController {
      * @return
      */
     @PostMapping
-    public R<String> save(Employee employee){
-        log.info("新增员工。。。{}", employee.toString());
-        return null;
+    public R<String> save(HttpServletRequest request, @RequestBody Employee employee){
+        // 默认密码123456 MD5加密
+        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+        Long employeeId = (Long) request.getSession().getAttribute("employee");
+        employee.setCreateUser(employeeId);
+        employee.setUpdateUser(employeeId);
+
+        employeeService.save(employee);
+        return R.success("新增成功。。。");
     }
 
+    /**
+     * 员工分页查询
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
+    @GetMapping("/page")
+    public R<Page> page(@RequestParam(defaultValue = "1", value = "page") int page, @RequestParam(defaultValue = "10", value = "pageSize") int pageSize, String name){
+        // 分页构造器
+        Page pageInfo = new Page(page, pageSize);
+        // 条件构造器
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(name != null, Employee::getName, name)
+                .orderByDesc(Employee::getUpdateTime);
+        // 查询
+        employeeService.page(pageInfo, queryWrapper);
+        return R.success(pageInfo);
+    }
 
     /**
      * 员工登录
