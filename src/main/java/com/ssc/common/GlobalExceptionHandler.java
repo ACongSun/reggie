@@ -1,4 +1,4 @@
-package com.ssc.config;
+package com.ssc.common;
 
 import com.ssc.common.R;
 import lombok.extern.slf4j.Slf4j;

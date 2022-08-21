@@ -8,11 +8,9 @@ import com.ssc.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 /**
@@ -67,6 +65,31 @@ public class EmployeeController {
         // 查询
         employeeService.page(pageInfo, queryWrapper);
         return R.success(pageInfo);
+    }
+
+    /**
+     * 修改员工信息
+     * @param employee
+     * @return
+     */
+    @PutMapping
+    public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
+        employee.setUpdateTime(LocalDateTime.now());
+
+        Long attribute =(Long) request.getSession().getAttribute("employee");
+        employee.setUpdateUser(attribute);
+
+        employeeService.updateById(employee);
+        return R.success("员工信息修改成功。。。");
+    }
+
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id){
+        Employee employee = employeeService.getById(id);
+        if (employee != null){
+            return R.success(employee);
+        }
+        return R.error("没有查到对应的员工信息");
     }
 
     /**
