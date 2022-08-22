@@ -4,34 +4,33 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * @ClassName Employee
+ * @ClassName Category
  * @Authoc 孙少聪
- * @Date 2022/8/20 09:16:10
+ * @Date 2022/8/22 09:47:07
  */
-
 @Data
-public class Employee {
+public class Category implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String username;
 
+    //类型 1 菜品分类 2 套餐分类
+    private Integer type;
+
+
+    //分类名称
     private String name;
 
-    private String password;
 
-    private String phone;
+    //顺序
+    private Integer sort;
 
-    private String sex;
-
-    private String idNumber;
-
-    private Integer status;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -46,4 +45,8 @@ public class Employee {
     // 更新时自动填充
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
+
+    ////是否删除
+    //private Integer isDeleted;
+
 }

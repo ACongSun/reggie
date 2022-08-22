@@ -3,6 +3,7 @@ package com.ssc.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ssc.common.R;
+import com.ssc.entity.Category;
 import com.ssc.entity.Employee;
 import com.ssc.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,15 +34,9 @@ public class EmployeeController {
      * @return
      */
     @PostMapping
-    public R<String> save(HttpServletRequest request, @RequestBody Employee employee){
+    public R<String> save(@RequestBody Employee employee){
         // 默认密码123456 MD5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        Long employeeId = (Long) request.getSession().getAttribute("employee");
-        employee.setCreateUser(employeeId);
-        employee.setUpdateUser(employeeId);
 
         employeeService.save(employee);
         return R.success("新增成功。。。");
@@ -57,7 +52,7 @@ public class EmployeeController {
     @GetMapping("/page")
     public R<Page> page(@RequestParam(defaultValue = "1", value = "page") int page, @RequestParam(defaultValue = "10", value = "pageSize") int pageSize, String name){
         // 分页构造器
-        Page pageInfo = new Page(page, pageSize);
+        Page<Employee> pageInfo = new Page<>(page, pageSize);
         // 条件构造器
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(name != null, Employee::getName, name)
@@ -73,12 +68,7 @@ public class EmployeeController {
      * @return
      */
     @PutMapping
-    public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
-        employee.setUpdateTime(LocalDateTime.now());
-
-        Long attribute =(Long) request.getSession().getAttribute("employee");
-        employee.setUpdateUser(attribute);
-
+    public R<String> update(@RequestBody Employee employee){
         employeeService.updateById(employee);
         return R.success("员工信息修改成功。。。");
     }

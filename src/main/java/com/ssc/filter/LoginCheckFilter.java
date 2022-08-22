@@ -1,6 +1,7 @@
 package com.ssc.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.ssc.common.BaseContext;
 import com.ssc.common.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -39,9 +40,13 @@ public class LoginCheckFilter implements Filter {
         };
         // 路径匹配
         boolean check = checkURL(urls, requestURI);
-        Object employee = request.getSession().getAttribute("employee");
+        Long employee =(Long) request.getSession().getAttribute("employee");
         // 不需要处理
         if (check || employee != null){
+
+            // 将用户id放进线程中去，以方便后来字段自动填充
+            BaseContext.setCurrentId(employee);
+
             filterChain.doFilter(request, response);
             return;
         }
