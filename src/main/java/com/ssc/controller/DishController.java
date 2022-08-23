@@ -146,4 +146,18 @@ public class DishController {
         }
         return R.success("删除菜品成功！");
     }
+
+    /**
+     * 根据分类名称获取菜品
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> getDish(Long categoryId){
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Dish::getCategoryId, categoryId);
+
+        List<Dish> list = dishService.list(queryWrapper);
+        return R.success(list);
+    }
 }
