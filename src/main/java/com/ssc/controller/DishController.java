@@ -6,10 +6,12 @@ import com.ssc.common.R;
 import com.ssc.dto.DishDto;
 import com.ssc.entity.Category;
 import com.ssc.entity.Dish;
+import com.ssc.entity.DishFlavor;
 import com.ssc.service.CategoryService;
 import com.ssc.service.DishFlavorService;
 import com.ssc.service.DishService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -110,5 +112,38 @@ public class DishController {
     public R<String> update(@RequestBody DishDto dishDto){
         dishService.updateWithFlavor(dishDto);
         return R.success("修改菜品信息成功！");
+    }
+
+    /**
+     * 菜品批量起售和停售
+     * @param ids
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable int status, Long[] ids){
+        log.info("修改菜品信息{}，{}",status,ids);
+        for (int i = 0; i < ids.length; i++) {
+            Dish dish = dishService.getById(ids[i]);
+            dish.setStatus(status);
+            dishService.updateById(dish);
+        }
+        return R.success("修改菜品状态成功！");
+    }
+
+
+    /**
+     * 批量删除菜品，同时删除菜品对应的口味儿
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public R<String> delete(Long[] ids){
+        for (int i = 0; i < ids.length; i++) {
+            dishService.removeById(ids[i]);
+            LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(DishFlavor::getDishId, ids[i]);
+            dishFlavorService.remove(queryWrapper);
+        }
+        return R.success("删除菜品成功！");
     }
 }
