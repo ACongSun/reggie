@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ssc.common.R;
 import com.ssc.entity.Category;
+import com.ssc.entity.Dish;
 import com.ssc.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassName CategoryController
@@ -33,6 +36,21 @@ public class CategoryController {
         log.info("信息:{}", category);
         categoryService.save(category);
         return R.success("新增分类信息成功");
+    }
+
+    /**
+     * 获取菜品列表
+     * @param category
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Category>> list(Category category){
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(category.getType() != null, Category::getType, category.getType())
+            .orderByAsc(Category::getSort)
+            .orderByDesc(Category::getUpdateTime);
+        List<Category> list = categoryService.list(queryWrapper);
+        return R.success(list);
     }
 
     /**

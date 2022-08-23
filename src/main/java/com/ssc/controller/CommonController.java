@@ -59,6 +59,11 @@ public class CommonController {
     }
 
 
+    /**
+     * 文件下载到本地页面展示
+     * @param name
+     * @param response
+     */
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response){
 
@@ -67,6 +72,7 @@ public class CommonController {
             FileInputStream inputStream = new FileInputStream(new File(basePath + name));
             // 输出流将文件写回浏览器，展示图片
             ServletOutputStream outputStream = response.getOutputStream();
+            // 设置下载的文件类型
             response.setContentType("image/jpeg");
             int len = 0;
             byte[] bytes = new byte[1024];
