@@ -88,7 +88,7 @@ public class EmployeeController {
      * @param employee
      * @return
      */
-    @PostMapping("login")
+    @PostMapping("/login")
     public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee){
         // md5 加密处理
         String password = employee.getPassword();
@@ -113,7 +113,6 @@ public class EmployeeController {
         }
         // 登陆成功 id存入session
         request.getSession().setAttribute("employee", emp.getId());
-
         return R.success(emp);
     }
 

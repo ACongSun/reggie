@@ -36,12 +36,17 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "/font/**"
+                "/front/**",
+                "/common/**",
+                "/user/sendMsg",
+                "/user/login"
         };
         // 路径匹配
         boolean check = checkURL(urls, requestURI);
         Long employee =(Long) request.getSession().getAttribute("employee");
-        // 不需要处理
+        /**
+         * 网页端
+         */
         if (check || employee != null){
 
             // 将用户id放进线程中去，以方便后来字段自动填充
@@ -50,7 +55,19 @@ public class LoginCheckFilter implements Filter {
             filterChain.doFilter(request, response);
             return;
         }
-        // 需要处理
+
+        /**
+         * 手机端
+          */
+        Long user =(Long) request.getSession().getAttribute("user");
+        if (check || user != null){
+            // 将用户id放进线程中去，以方便后来字段自动填充
+            BaseContext.setCurrentId(user);
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
         return;
     }
