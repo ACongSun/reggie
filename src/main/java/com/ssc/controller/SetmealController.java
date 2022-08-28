@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ssc.common.R;
 import com.ssc.dto.SetmealDto;
 import com.ssc.entity.Category;
+import com.ssc.entity.Dish;
 import com.ssc.entity.Setmeal;
 import com.ssc.entity.SetmealDish;
 import com.ssc.service.CategoryService;
@@ -142,6 +143,11 @@ public class SetmealController {
     }
 
 
+    /**
+     * 删除套餐
+     * @param ids
+     * @return
+     */
     @DeleteMapping
     public R<String> delete(Long[] ids){
         for (int i = 0; i < ids.length; i++) {
@@ -151,5 +157,29 @@ public class SetmealController {
             setmealDishService.remove(queryWrapper);
         }
         return R.success("删除套餐成功!");
+    }
+
+    /**
+     * 查询套餐对应的菜品信息
+     * @param setmeal
+     * @return
+     */
+    @GetMapping("list")
+    public R<List<Setmeal>> list(Setmeal setmeal){
+
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId())
+                    .eq(setmeal.getStatus() != 0, Setmeal::getStatus, setmeal.getStatus())
+                    .orderByDesc(Setmeal::getUpdateTime);
+        List<Setmeal> setmealList = setmealService.list(queryWrapper);
+        return R.success(setmealList);
+    }
+
+    @GetMapping("/dish/{id}")
+    public R<List<SetmealDish>> dishList(@PathVariable Long id){
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId, id);
+        List<SetmealDish> list = setmealDishService.list(queryWrapper);
+        return R.success(list);
     }
 }

@@ -152,12 +152,48 @@ public class DishController {
      * @param categoryId
      * @return
      */
-    @GetMapping("/list")
+/*    @GetMapping("/list")
     public R<List<Dish>> getDish(Long categoryId){
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Dish::getCategoryId, categoryId);
 
         List<Dish> list = dishService.list(queryWrapper);
         return R.success(list);
+    }*/
+
+    /**
+     * 根据分类名称获取菜品
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<DishDto>> list(Long categoryId){
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Dish::getCategoryId, categoryId);
+
+        List<Dish> list = dishService.list(queryWrapper);
+
+        List<DishDto> dishDtos = list.stream().map(item -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item, dishDto);
+
+            // 根据分类id查询菜品名字
+            Long id = item.getCategoryId();
+            Category category = categoryService.getById(id);
+            if(category != null){
+                String categoryName = category.getName();
+                dishDto.setCategoryName(categoryName);
+            }
+
+            // 根据菜品id查询口味集合
+            LambdaQueryWrapper<DishFlavor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(DishFlavor::getDishId, item.getId());
+            List<DishFlavor> dishFlavors = dishFlavorService.list(wrapper);
+            dishDto.setFlavors(dishFlavors);
+
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        return R.success(dishDtos);
     }
 }
