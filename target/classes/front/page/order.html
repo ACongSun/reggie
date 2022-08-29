@@ -64,7 +64,7 @@
         <!-- 引入组件库 -->
         <script src="../../backend/plugins/element-ui/index.js"></script>
         <!-- 引入vant组件 -->
-        <script src="./../js/vant.min.js"></script>    
+        <script src="./../js/vant.min.js"></script>
         <!-- 引入axios -->
         <script src="../../backend/plugins/axios/axios.min.js"></script>
         <script src="./../js/request.js"></script>
@@ -95,7 +95,7 @@
                     if(url.includes('success')){
                         window.requestAnimationFrame(()=>{
                                 window.location.href= '/front/index.html'
-                        })   
+                        })
                     }else{
                         history.go(-1)
                     }
@@ -113,13 +113,20 @@
                         this.orderList.push(...res.data.records)
                         let records = res.data.records
                         if(records && Array.isArray(records)){
-                            records.forEach(item=>{
+                            for (let i = 0; i < records.length; i++) {
+                                let number = 0
+                                for (let j = 0; j < records[i].orderDetails; j++) {
+                                    number += records[i].orderDetails[j].number
+                                }
+                                records[i].sumNum = number
+                            }
+  /*                          records.forEach(item => {
                                 let number = 0
                                 item.orderDetails.forEach(ele=>{
                                     number += ele.number
                                 })
                                 item.sumNum = number
-                            })
+                            })*/
                         }
                         this.loading = false;
                         if(this.paging.page >= res.data.pages){

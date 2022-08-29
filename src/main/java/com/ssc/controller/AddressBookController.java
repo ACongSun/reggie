@@ -1,14 +1,13 @@
 package com.ssc.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.ssc.common.BaseContext;
 import com.ssc.common.R;
 import com.ssc.entity.AddressBook;
 import com.ssc.service.AddressBookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,5 +48,73 @@ public class AddressBookController {
         queryWrapper.eq(AddressBook::getIsDefault, 1);
         AddressBook addressBook = addressBookService.getOne(queryWrapper);
         return R.success(addressBook);
+    }
+
+    /**
+     * 修改默认地址
+     * @param addressBook3
+     * @return
+     */
+    @PutMapping("default")
+    public R<String> updateDefault(@RequestBody AddressBook addressBook3){
+        LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AddressBook::getIsDefault, 1);
+        AddressBook addressBook = addressBookService.getOne(queryWrapper);
+        addressBook.setIsDefault(0);
+        addressBookService.updateById(addressBook);
+        LambdaQueryWrapper<AddressBook> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.eq(AddressBook::getId, addressBook3.getId());
+        AddressBook addressBook1 = addressBookService.getOne(queryWrapper1);
+        addressBook1.setIsDefault(1);
+        addressBookService.updateById(addressBook1);
+        return R.success("修改成功！！！");
+    }
+
+    /**
+     * 新增地址
+     * @param addressBook
+     * @return
+     */
+    @PostMapping()
+    public R<String> add(@RequestBody AddressBook addressBook){
+        log.info("传过来的数据：{}",addressBook);
+        Long currentId = BaseContext.getCurrentId();
+        addressBook.setUserId(currentId);
+        addressBookService.save(addressBook);
+        return R.success("新增成功！！！");
+    }
+
+    /**
+     * 根据id获取地址
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<AddressBook> getOne(@PathVariable Long id){
+        AddressBook addressBook = addressBookService.getById(id);
+        return R.success(addressBook);
+    }
+
+
+    /**
+     * 修改某个地址信息
+     * @param addressBook
+     * @return
+     */
+    @PutMapping()
+    public R<String> updateOne(@RequestBody AddressBook addressBook){
+        addressBookService.updateById(addressBook);
+        return R.success("修改成功！！！");
+    }
+
+    /**
+     * 删除某个地址
+     * @param ids
+     * @return
+     */
+    @DeleteMapping()
+    public R<String> deleteOne(@RequestParam Long ids){
+        addressBookService.removeById(ids);
+        return R.success("删除成功！！");
     }
 }
