@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @ClassName ReggieApplication
- * @Authoc 孙少聪
+ * @Authoc ACoongSun
  * @Date 2022/8/19 11:10:54
  */
 
