@@ -1,7 +1,31 @@
 spring:
+  # 环境选择
   profiles:
-    active: pro
+    active: dev
+  # 名称
+  application:
+    name: reggie_take_out
+  # 数据库连接池
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+  # redis配置
+  redis:
+    host: 39.101.75.166
+    port: 6379
+    database: 0
+    password: 123456
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: 1ms
+        max-idle: 4
+        min-idle: 0
 
+# mybatis-plus
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
@@ -10,3 +34,4 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
+
