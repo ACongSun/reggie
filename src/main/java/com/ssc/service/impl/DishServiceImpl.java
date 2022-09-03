@@ -31,10 +31,11 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     /**
      * 新增菜品，同时保存口味信息
      * @param dishDto
+     * @return
      */
     @Transactional
     @Override
-    public void saveWithFlavor(DishDto dishDto) {
+    public String saveWithFlavor(DishDto dishDto) {
         // 保存菜品表
         this.save(dishDto);
 
@@ -52,6 +53,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
         // 批量存入
         dishFlavorService.saveBatch(flavors); // 没有存dishId
+        return null;
     }
 
     /**

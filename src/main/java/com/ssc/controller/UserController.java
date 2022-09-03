@@ -5,15 +5,15 @@ import com.ssc.common.R;
 import com.ssc.entity.User;
 import com.ssc.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName UserController
@@ -28,6 +28,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 获取验证码，存入seesion
      * @param user
@@ -39,6 +42,10 @@ public class UserController {
         String code = (int)((Math.random()*9+1)*100000)+"";
         session.setAttribute("phone",user.getPhone());
         session.setAttribute("code",code);
+
+        // 缓存至redis中去
+        redisTemplate.opsForValue().set("phone",user.getPhone(),5,TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set("code",code,5,TimeUnit.MINUTES);
         return R.success(code);
     }
 
@@ -54,7 +61,9 @@ public class UserController {
         String phone = map.get("phone");
         // 与验证码比对
         String code = map.get("code");
-        String  sesionCode = (String) session.getAttribute("code");
+        // String  sesionCode = (String) session.getAttribute("code");
+        // 从redis中拿到验证码
+        String  sesionCode =(String) redisTemplate.opsForValue().get("code");
         // 验证码一直比对成功登陆成功
         if (sesionCode.equals(code) && sesionCode != null){
             // 新用户自动注册
@@ -68,6 +77,10 @@ public class UserController {
                 userService.save(user);
             }
             session.setAttribute("user", user.getId());
+
+            // 登录成功
+            redisTemplate.delete("code");
+            redisTemplate.delete("phone");
             return R.success("登陆成功！！");
         }
         return R.error("未知错误！");
