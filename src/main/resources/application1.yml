@@ -1,21 +1,23 @@
-server:
-  port: 8080
 spring:
+  # 环境选择
+  profiles:
+    active: dev
+  # 名称
   application:
-    #应用的名称，可选
     name: reggie_take_out
+  main:
+    allow-bean-definition-overriding: true
   shardingsphere:
     datasource:
       names:
         master,slave
-      # 主数据源
       master:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://39.101.75.166:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
         username: root
         password: 123456
-      # 从数据源
+      # 浠庢暟鎹簮
       slave:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,27 +25,37 @@ spring:
         username: root
         password: 123456
     masterslave:
-      # 读写分离配置
-      load-balance-algorithm-type: round_robin #轮询
-      # 最终的数据源名称
+      # 璇诲啓鍒嗙閰嶇疆
+      load-balance-algorithm-type: round_robin #杞
+      # 鏈€缁堢殑鏁版嵁婧愬悕绉�
       name: dataSource
-      # 主库数据源名称
+      # 涓诲簱鏁版嵁婧愬悕绉�
       master-data-source-name: master
-      # 从库数据源名称列表，多个逗号分隔
+      # 浠庡簱鏁版嵁婧愬悕绉板垪琛紝澶氫釜閫楀彿鍒嗛殧
       slave-data-source-names: slave
     props:
       sql:
-        show: true #开启SQL显示，默认false
-  main:
-    allow-bean-definition-overriding: true
+        show: true #寮€鍚疭QL鏄剧ず锛岄粯璁alse
+    main:
+      allow-bean-definition-overriding: true
+
+
+  # redis配置
   redis:
-    host: localhost
+    host: 39.101.75.166
     port: 6379
-    password:
     database: 0
+    password: root@123456
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: 1ms
+        max-idle: 4
+        min-idle: 0
   cache:
     redis:
-      time-to-live: 1800000 #设置缓存数据的过期时间
+      time-to-live: 1800000 # 缓存有效期
+# mybatis-plus
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
@@ -52,5 +64,4 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
-reggie:
-  path: D:\img\
+
