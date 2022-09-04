@@ -14,6 +14,8 @@ import com.ssc.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -95,6 +97,7 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
+    @CacheEvict(value = "setMealCache", allEntries = true)
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto){
         log.info("信息:{}", setmealDto);
@@ -107,6 +110,7 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
+    @CacheEvict(value = "setMealCache", allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
         // 存储套餐表
@@ -131,6 +135,7 @@ public class SetmealController {
      * @param ids
      * @return
      */
+
     @PostMapping("/status/{status}")
     public R<String> stopSale(@PathVariable Integer status, Long[] ids){
 
@@ -148,6 +153,7 @@ public class SetmealController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "setMealCache", allEntries = true)
     @DeleteMapping
     public R<String> delete(Long[] ids){
         for (int i = 0; i < ids.length; i++) {
@@ -164,9 +170,9 @@ public class SetmealController {
      * @param setmeal
      * @return
      */
+    @Cacheable(value = "setMealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
     @GetMapping("list")
     public R<List<Setmeal>> list(Setmeal setmeal){
-
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId())
                     .eq(setmeal.getStatus() != 0, Setmeal::getStatus, setmeal.getStatus())
