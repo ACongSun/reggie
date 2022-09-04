@@ -5,13 +5,45 @@ spring:
   # 名称
   application:
     name: reggie_take_out
-  # 数据库连接池
-  datasource:
-    druid:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: root
-      password: 123456
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+  shardingsphere:
+    # 数据库连接池
+    datasource:
+      names:
+        master,slave
+      # 主数据源
+      master:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+      # 从数据源
+      slave:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://39.101.75.166:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+    masterslave:
+      # 璇诲啓鍒嗙閰嶇疆
+      load-balance-algorithm-type: round_robin #杞
+      # 鏈€缁堢殑鏁版嵁婧愬悕绉�
+      name: dataSource
+      # 涓诲簱鏁版嵁婧愬悕绉�
+      master-data-source-name: master
+      # 浠庡簱鏁版嵁婧愬悕绉板垪琛紝澶氫釜閫楀彿鍒嗛殧
+      slave-data-source-names: slave
+      props:
+        sql:
+          show: true #寮€鍚疭QL鏄剧ず锛岄粯璁alse
+
+
   # redis配置
   redis:
     host: 39.101.75.166
